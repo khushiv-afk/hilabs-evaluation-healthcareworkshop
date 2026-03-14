@@ -3,18 +3,17 @@ import sys
 import os
 
 valid_types = [
-"MEDICINE","PROBLEM","PROCEDURE","TEST","VITAL_NAME",
-"IMMUNIZATION","MEDICAL_DEVICE","MENTAL_STATUS",
-"SDOH","SOCIAL_HISTORY"
+"IMMUNIZATION","MEDICAL_DEVICE","MEDICINE","MENTAL_STATUS",
+"PROBLEM","PROCEDURE","SDOH","SOCIAL_HISTORY","TEST","VITAL_NAME"
 ]
 
-valid_assertions = ["POSITIVE","NEGATIVE","UNCERTAIN"]
+valid_assertions = ["POSITIVE","NEGATIVE","UNCERTAIN",""]
 
 valid_temporality = [
-"CURRENT","CLINICAL_HISTORY","UPCOMING","UNCERTAIN"
+"CURRENT","CLINICAL_HISTORY","UPCOMING","UNCERTAIN",""
 ]
 
-valid_subject = ["PATIENT","FAMILY_MEMBER"]
+valid_subject = ["PATIENT","FAMILY_MEMBER",""]
 
 
 def evaluate(input_file, output_file):
@@ -22,7 +21,7 @@ def evaluate(input_file, output_file):
     with open(input_file) as f:
         data = json.load(f)
 
-    entities = data.get("entities", [])
+    entities = data
     total = len(entities)
 
     entity_errors = 0
@@ -34,12 +33,12 @@ def evaluate(input_file, output_file):
 
     for e in entities:
 
-        required = ["type","assertion","temporality","subject"]
+        required = ["entity_type","assertion","temporality","subject"]
 
         if all(attr in e for attr in required):
             complete_entities += 1
 
-        if e.get("type") not in valid_types:
+        if e.get("entity_type") not in valid_types:
             entity_errors += 1
 
         if e.get("assertion") not in valid_assertions:
@@ -51,8 +50,13 @@ def evaluate(input_file, output_file):
         if e.get("subject") not in valid_subject:
             subject_errors += 1
 
-        if "date" in e and e["date"]:
-            date_correct += 1
+        # check date inside metadata_from_qa
+        qa = e.get("metadata_from_qa",{})
+
+        if "relations" in qa:
+            for r in qa["relations"]:
+                if r.get("entity_type") in ["exact_date","derived_date"]:
+                    date_correct += 1
 
 
     result = {
