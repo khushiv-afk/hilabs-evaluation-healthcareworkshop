@@ -1,1 +1,20 @@
+output/
+chart_01.json
+chart_02.json
+chart_03.json
+...
+{
+"file_name": "chart_01.json",
 
+"entity_type_error_rate": 0.05,
+
+"assertion_error_rate": 0.02,
+
+"temporality_error_rate": 0.1,
+
+"subject_error_rate": 0.03,
+
+"event_date_accuracy": 0.9,
+
+"attribute_completeness": 0.88
+}
